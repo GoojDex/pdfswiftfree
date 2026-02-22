@@ -49,14 +49,14 @@ const tools = [
 
 function renderTools() {
   const grid = document.getElementById('toolsGrid');
-  grid.innerHTML = tools.map(t => 
+  grid.innerHTML = tools.map(t => `
     <div onclick="openTool('\( {t.name}')" class="tool-card bg-white rounded-xl p-6 text-center cursor-pointer border border-gray-200 hover:border- \){t.color}-500 transition">
       <div class="w-16 h-16 mx-auto bg-\( {t.color}-100 text- \){t.color}-600 rounded-full flex items-center justify-center text-4xl mb-4">
         <i class="fas ${t.icon}"></i>
       </div>
       <h3 class="font-semibold text-lg">${t.name}</h3>
     </div>
-  ).join('');
+  `).join('');
 }
 
 async function openTool(name) {
@@ -65,7 +65,7 @@ async function openTool(name) {
   const content = document.getElementById('modalContent');
   
   if (name === "Merge PDF") {
-    content.innerHTML = 
+    content.innerHTML = `
       <div class="text-center py-10">
         <input type="file" id="mergeFiles" multiple accept=".pdf" class="hidden"/>
         <button onclick="document.getElementById('mergeFiles').click()" class="px-10 py-4 bg-blue-600 text-white rounded-xl text-lg font-medium hover:bg-blue-700">
@@ -73,7 +73,7 @@ async function openTool(name) {
         </button>
         <div id="mergeStatus" class="mt-8 min-h-[100px]"></div>
       </div>
-    ;
+    `;
     document.getElementById('mergeFiles').onchange = async e => {
       const files = e.target.files;
       if (files.length < 2) return alert("Kam se kam 2 PDF files chahiye!");
@@ -90,16 +90,16 @@ async function openTool(name) {
         const pdfBytes = await merged.save();
         const blob = new Blob([pdfBytes], {type: 'application/pdf'});
         const url = URL.createObjectURL(blob);
-        status.innerHTML = <a href="${url}" download="merged.pdf" class="inline-block mt-4 px-8 py-4 bg-green-600 text-white rounded-xl text-lg font-medium hover:bg-green-700">Download Merged PDF</a>;
+        status.innerHTML = `<a href="${url}" download="merged.pdf" class="inline-block mt-4 px-8 py-4 bg-green-600 text-white rounded-xl text-lg font-medium hover:bg-green-700">Download Merged PDF</a>`;
       } catch (err) {
         status.innerHTML = '<p class="text-red-600">Error: ' + err.message + '</p>';
       }
     };
   } else {
-    content.innerHTML = <div class="text-center py-20">
+    content.innerHTML = `<div class="text-center py-20">
       <i class="fas fa-tools text-8xl text-gray-400 mb-6"></i>
       <p class="text-2xl font-medium">${name} – Coming Soon! (Full version update soon)</p>
-    </div>;
+    </div>`;
   }
 }
 
