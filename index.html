@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Swift Free - Online Merge, Split, Compress PDF Instantly</title>
+  <meta name="description" content="100% free browser-based PDF tools: merge multiple PDFs, split pages, compress files instantly. No signup, private & fast!">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .tool-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-5 flex justify-between items-center">
+    <h1 class="text-3xl font-bold">PDF <span class="text-yellow-300">Swift</span> Free</h1>
+    <div class="text-sm">100% Free • Browser Only • No Signup</div>
+  </div>
+</header>
+
+<section class="max-w-6xl mx-auto px-4 py-12 text-center">
+  <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gray-800">Fast Online PDF Tools – All in Your Browser</h2>
+  <p class="text-xl text-gray-600 mb-10">Merge, split, compress, rotate PDF files instantly. Your files never leave your device.</p>
+  
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="toolsGrid"></div>
+</section>
+
+<div id="modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-auto shadow-2xl">
+    <div class="sticky top-0 bg-white p-5 border-b flex justify-between items-center z-10">
+      <h3 id="modalTitle" class="text-2xl font-bold"></h3>
+      <button onclick="document.getElementById('modal').classList.add('hidden')" class="text-4xl text-gray-500 hover:text-black">×</button>
+    </div>
+    <div id="modalContent" class="p-6"></div>
+  </div>
+</div>
+
+<script>
+const tools = [
+  {name:"Merge PDF", icon:"fa-object-group", color:"blue"},
+  {name:"Split PDF", icon:"fa-scissors", color:"red"},
+  {name:"Rotate PDF", icon:"fa-redo", color:"green"},
+  {name:"Compress PDF", icon:"fa-compress", color:"purple"},
+  {name:"PDF to JPG", icon:"fa-image", color:"amber"}
+];
+
+function renderTools() {
+  const grid = document.getElementById('toolsGrid');
+  grid.innerHTML = tools.map(t => 
+    <div onclick="openTool('\( {t.name}')" class="tool-card bg-white rounded-xl p-6 text-center cursor-pointer border border-gray-200 hover:border- \){t.color}-500 transition">
+      <div class="w-16 h-16 mx-auto bg-\( {t.color}-100 text- \){t.color}-600 rounded-full flex items-center justify-center text-4xl mb-4">
+        <i class="fas ${t.icon}"></i>
+      </div>
+      <h3 class="font-semibold text-lg">${t.name}</h3>
+    </div>
+  ).join('');
+}
+
+async function openTool(name) {
+  document.getElementById('modalTitle').textContent = name;
+  document.getElementById('modal').classList.remove('hidden');
+  const content = document.getElementById('modalContent');
+  
+  if (name === "Merge PDF") {
+    content.innerHTML = 
+      <div class="text-center py-10">
+        <input type="file" id="mergeFiles" multiple accept=".pdf" class="hidden"/>
+        <button onclick="document.getElementById('mergeFiles').click()" class="px-10 py-4 bg-blue-600 text-white rounded-xl text-lg font-medium hover:bg-blue-700">
+          Select PDF Files
+        </button>
+        <div id="mergeStatus" class="mt-8 min-h-[100px]"></div>
+      </div>
+    ;
+    document.getElementById('mergeFiles').onchange = async e => {
+      const files = e.target.files;
+      if (files.length < 2) return alert("Kam se kam 2 PDF files chahiye!");
+      const status = document.getElementById('mergeStatus');
+      status.innerHTML = '<p class="text-blue-600 text-lg">Merging PDFs... please wait</p>';
+      try {
+        const merged = await PDFLib.PDFDocument.create();
+        for (let file of files) {
+          const buf = await file.arrayBuffer();
+          const src = await PDFLib.PDFDocument.load(buf);
+          const pages = await merged.copyPages(src, src.getPageIndices());
+          pages.forEach(p => merged.addPage(p));
+        }
+        const pdfBytes = await merged.save();
+        const blob = new Blob([pdfBytes], {type: 'application/pdf'});
+        const url = URL.createObjectURL(blob);
+        status.innerHTML = <a href="${url}" download="merged.pdf" class="inline-block mt-4 px-8 py-4 bg-green-600 text-white rounded-xl text-lg font-medium hover:bg-green-700">Download Merged PDF</a>;
+      } catch (err) {
+        status.innerHTML = '<p class="text-red-600">Error: ' + err.message + '</p>';
+      }
+    };
+  } else {
+    content.innerHTML = <div class="text-center py-20">
+      <i class="fas fa-tools text-8xl text-gray-400 mb-6"></i>
+      <p class="text-2xl font-medium">${name} – Coming Soon! (Full version update soon)</p>
+    </div>;
+  }
+}
+
+window.addEventListener('load', renderTools);
+</script>
+</body>
+</html>
